@@ -1,0 +1,8 @@
+Flask
+pandas
+pdfplumber
+google-genai
+python-dotenv
+Werkzeug
+gunicorn
+reportlab

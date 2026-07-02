@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureScan AI | Sensitive Data Detection & Compliance Assistant</title>
+    <!-- Google Fonts Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Link CSS using Flask's url_for -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Link JS using Flask's url_for, deferred -->
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>SecureScan AI</span>
+            </div>
+            <div class="header-subtitle">Sensitive Data Detection & Compliance Assistant</div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" id="scanTabBtn">
+                <i class="fa-solid fa-file-shield"></i> Scan Document
+            </button>
+            <button class="tab-btn" id="auditTabBtn">
+                <i class="fa-solid fa-clipboard-list"></i> Audit Logs
+            </button>
+        </div>
+
+        <!-- 1. Hero Landing Section -->
+        <section class="hero-section" id="heroSection">
+            <div class="hero-text">
+                <h2>Protect Your Data. Automate Compliance.</h2>
+                <p class="subtitle">
+                    Upload PDF, TXT or CSV documents to automatically scan for sensitive information, classify compliance risks, generate AI-powered summaries, and ask intelligent questions about your document.
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-file-import"></i></div>
+                    <h3>Multi-format Upload</h3>
+                    <p>Securely analyze PDF, TXT, and CSV files up to 16 MB.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-key"></i></div>
+                    <h3>Sensitive Data Detection</h3>
+                    <p>Detect credentials, passwords, PAN cards, Aadhaars, emails, and API keys.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h3>Risk Classification</h3>
+                    <p>Immediate scoring, badge status levels, and clear textual reason breakdowns.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-robot"></i></div>
+                    <h3>AI Compliance Summary</h3>
+                    <p>Review observations, threat vectors, and custom remediation in distinct cards.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-comments"></i></div>
+                    <h3>Document Q&A Chatbot</h3>
+                    <p>Intelligently query document aspects using specialized in-context retrieval.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. File Upload and Step Loading Section -->
+        <section class="card" id="uploadSection">
+            <h2>Document Analysis</h2>
+            <div class="form-group">
+                <label for="fileInput">Select a document (PDF, TXT, or CSV):</label>
+                <div class="file-drop-zone">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <input type="file" id="fileInput" accept=".pdf,.txt,.csv">
+                    <p class="help-text">Max file size: 16 MB. Only PDF, TXT, and CSV are allowed.</p>
+                </div>
+            </div>
+            <button id="analyzeBtn" type="button">
+                <i class="fa-solid fa-magnifying-glass"></i> Analyze Document
+            </button>
+            <div id="uploadStatus"></div>
+
+            <!-- Step-based loading experience -->
+            <div id="progressContainer" class="progress-container" hidden>
+                <div class="progress-bar-wrapper">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+                <div class="progress-steps">
+                    <div id="step-read" class="progress-step"><span class="step-icon"><i class="fa-solid fa-file-lines"></i></span> 📄 Reading document...</div>
+                    <div id="step-detect" class="progress-step"><span class="step-icon"><i class="fa-solid fa-eye"></i></span> 🔍 Detecting sensitive information...</div>
+                    <div id="step-risk" class="progress-step"><span class="step-icon"><i class="fa-solid fa-shield"></i></span> 🛡️ Calculating risk...</div>
+                    <div id="step-summary" class="progress-step"><span class="step-icon"><i class="fa-solid fa-robot"></i></span> 🤖 Generating compliance summary...</div>
+                    <div id="step-qa" class="progress-step"><span class="step-icon"><i class="fa-solid fa-comments"></i></span> 💬 Preparing AI assistant...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Two-Column Layout Container (Hidden by Default) -->
+        <div class="app-layout" id="appLayout" hidden>
+            
+            <!-- LEFT COLUMN: Dashboard, Findings, Compliance Summary -->
+            <div class="layout-left">
+                <!-- 3. Modern Analysis Dashboard Card -->
+                <section class="card" id="dashboardSection">
+                    <h2>Analysis Dashboard</h2>
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <i class="fa-solid fa-file-signature"></i>
+                            <div class="dashboard-info">
+                                <span class="dashboard-label">File Name</span>
+                                <span class="dashboard-value" id="dbFileName">-</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <i class="fa-solid fa-file-code"></i>
+                            <div class="dashboard-info">
+                                <span class="dashboard-label">File Type</span>
+                                <span class="dashboard-value" id="dbFileType">-</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <i class="fa-solid fa-weight-hanging"></i>
+                            <div class="dashboard-info">
+                                <span class="dashboard-label">File Size</span>
+                                <span class="dashboard-value" id="dbFileSize">-</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <i class="fa-solid fa-clock"></i>
+                            <div class="dashboard-info">
+                                <span class="dashboard-label">Analysis Timestamp</span>
+                                <span class="dashboard-value" id="dbTimestamp">-</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <i class="fa-solid fa-chart-bar"></i>
+                            <div class="dashboard-info">
+                                <span class="dashboard-label">Total Sensitive Items</span>
+                                <span class="dashboard-value" id="dbTotalSensitive">-</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <div class="dashboard-info">
+                                <span class="dashboard-label">Categories Detected</span>
+                                <span class="dashboard-value" id="dbCategoriesCount">-</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <i class="fa-solid fa-shield-check"></i>
+                            <div class="dashboard-info">
+                                <span class="dashboard-label">AI Summary Status</span>
+                                <span class="dashboard-value" id="dbSummaryStatus">Not Generated</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <div class="dashboard-info">
+                                <span class="dashboard-label">Overall Risk Level</span>
+                                <span class="dashboard-value" id="dbRiskLevel">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. Findings & Risk Card -->
+                <section class="card" id="resultsSection">
+                    <h2>Analysis Findings</h2>
+                    
+                    <div class="risk-info">
+                        <h3>Overall Risk Assessment</h3>
+                        <div class="risk-badge-wrapper">
+                            <span id="riskLevel" class="badge"></span>
+                            <span class="score-container">Score: <strong id="riskScore"></strong></span>
+                        </div>
+                        <div class="risk-reasons-container">
+                            <h4>Risk Reasons Breakdown:</h4>
+                            <ul id="riskReasonsList" class="reasons-list"></ul>
+                        </div>
+                    </div>
+                    
+                    <div class="findings-info">
+                        <h3>Detected Sensitive Instances (Masked for Security)</h3>
+                        <div id="findingsList"></div>
+                    </div>
+
+                    <div class="redaction-actions">
+                        <button id="showRedactedBtn" type="button">
+                            <i class="fa-solid fa-eye-slash"></i> Show Redacted Version
+                        </button>
+                        <pre id="redactedText" hidden></pre>
+                    </div>
+
+                    <!-- Downloadable Reports -->
+                    <div class="download-report-container">
+                        <h3>Download Compliance Reports</h3>
+                        <div class="download-buttons">
+                            <a id="downloadPdfBtn" class="download-btn btn-pdf"><i class="fa-solid fa-file-pdf"></i> PDF Report</a>
+                            <a id="downloadTxtBtn" class="download-btn btn-txt"><i class="fa-solid fa-file-lines"></i> TXT Report</a>
+                            <a id="downloadCsvBtn" class="download-btn btn-csv"><i class="fa-solid fa-file-csv"></i> CSV Report</a>
+                            <a id="downloadJsonBtn" class="download-btn btn-json"><i class="fa-solid fa-code"></i> JSON Report</a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. AI Summary Card -->
+                <section class="card" id="summarySection">
+                    <h2>Compliance Report</h2>
+                    <button id="generateSummaryBtn" type="button">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Compliance Report
+                    </button>
+                    <div id="summaryOutput"></div>
+
+                    <!-- Separate Cards for AI Report -->
+                    <div id="summaryCardsContainer" class="summary-cards-grid" hidden>
+                        <div class="summary-subcard observations">
+                            <h4><i class="fa-solid fa-magnifying-glass-chart"></i> Compliance Observations</h4>
+                            <div id="summaryObservations" class="subcard-content"></div>
+                        </div>
+                        <div class="summary-subcard risks">
+                            <h4><i class="fa-solid fa-skull-crossbones"></i> Security Risks</h4>
+                            <div id="summaryRisks" class="subcard-content"></div>
+                        </div>
+                        <div class="summary-subcard remediation">
+                            <h4><i class="fa-solid fa-kit-medical"></i> Suggested Remediation</h4>
+                            <div id="summaryRemediation" class="subcard-content"></div>
+                        </div>
+                        <div class="summary-subcard recommendations">
+                            <h4><i class="fa-solid fa-lightbulb"></i> Future Recommendations</h4>
+                            <div id="summaryRecommendations" class="subcard-content"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- RIGHT COLUMN: AI Document Assistant (Chat Window) -->
+            <div class="layout-right">
+                <section class="card id-chat-card" id="qaSection">
+                    <div class="chat-header">
+                        <h3><i class="fa-solid fa-robot"></i> AI Document Assistant</h3>
+                        <div class="chat-header-actions">
+                            <button id="clearChatBtn" class="chat-tool-btn" title="Clear Chat History">
+                                <i class="fa-solid fa-trash-can"></i> Clear Chat
+                            </button>
+                            <button id="exportChatPdfBtn" class="chat-tool-btn" title="Export Chat as PDF">
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                            </button>
+                            <button id="exportChatTxtBtn" class="chat-tool-btn" title="Export Chat as TXT">
+                                <i class="fa-solid fa-file-lines"></i> Export TXT
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Notification banner -->
+                    <div id="chatNotification" class="chat-notification" hidden></div>
+
+                    <!-- Conversation container -->
+                    <div id="chatHistory" class="chat-container">
+                        <div class="chat-welcome">
+                            <i class="fa-solid fa-comments"></i>
+                            <p>Ask anything about the uploaded document. Chat history is preserved for this session.</p>
+                        </div>
+                    </div>
+
+                    <!-- Suggested Questions chips -->
+                    <div class="suggestion-chips" id="suggestionChips">
+                        <span class="chip-label">Suggestions:</span>
+                        <button class="chip-btn" data-question="Summarize this document">Summarize this document</button>
+                        <button class="chip-btn" data-question="What sensitive information exists?">What sensitive information exists?</button>
+                        <button class="chip-btn" data-question="How many email addresses were detected?">How many email addresses were detected?</button>
+                        <button class="chip-btn" data-question="What compliance risks were identified?">What compliance risks were identified?</button>
+                        <button class="chip-btn" data-question="What remediation steps do you recommend?">What remediation steps do you recommend?</button>
+                        <button class="chip-btn" data-question="List all detected confidential information.">List all detected confidential information.</button>
+                    </div>
+
+                    <!-- Chat Input Wrapper -->
+                    <div class="chat-input-container">
+                        <textarea id="questionInput" placeholder="Ask anything about the uploaded document..." maxlength="2000" rows="1"></textarea>
+                        <div class="chat-input-bar">
+                            <span id="charCounter" class="char-counter">0 / 2000</span>
+                            <button id="askBtn" type="button"><i class="fa-solid fa-paper-plane"></i> Send</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+        </div>
+
+        <!-- 6. Audit Log Section -->
+        <section class="card" id="auditLogSection" hidden>
+            <h2>System Audit Logs</h2>
+            
+            <!-- Audit Summary Cards -->
+            <div class="audit-dashboard-grid">
+                <div class="audit-dashboard-card">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <div class="audit-dashboard-info">
+                        <span class="audit-dashboard-label">Total Analyses</span>
+                        <span class="audit-dashboard-value" id="cardTotalAnalyses">0</span>
+                    </div>
+                </div>
+                <div class="audit-dashboard-card text-high">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div class="audit-dashboard-info">
+                        <span class="audit-dashboard-label">High Risk</span>
+                        <span class="audit-dashboard-value" id="cardHighRisk">0</span>
+                    </div>
+                </div>
+                <div class="audit-dashboard-card text-medium">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div class="audit-dashboard-info">
+                        <span class="audit-dashboard-label">Medium Risk</span>
+                        <span class="audit-dashboard-value" id="cardMediumRisk">0</span>
+                    </div>
+                </div>
+                <div class="audit-dashboard-card text-low">
+                    <i class="fa-solid fa-shield-check"></i>
+                    <div class="audit-dashboard-info">
+                        <span class="audit-dashboard-label">Low Risk</span>
+                        <span class="audit-dashboard-value" id="cardLowRisk">0</span>
+                    </div>
+                </div>
+                <div class="audit-dashboard-card">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <div class="audit-dashboard-info">
+                        <span class="audit-dashboard-label">Success Rate</span>
+                        <span class="audit-dashboard-value" id="cardSuccessRate">0%</span>
+                    </div>
+                </div>
+                <div class="audit-dashboard-card">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <div class="audit-dashboard-info">
+                        <span class="audit-dashboard-label">Avg Proc Time</span>
+                        <span class="audit-dashboard-value" id="cardAvgTime">0.00s</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="audit-controls">
+                <div class="audit-search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="auditSearchInput" placeholder="Search logs by filename, risk, status...">
+                </div>
+                
+                <div class="audit-filters">
+                    <div class="filter-group">
+                        <label for="filterRisk">Risk:</label>
+                        <select id="filterRisk">
+                            <option value="all">All</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="filterStatus">Status:</label>
+                        <select id="filterStatus">
+                            <option value="all">All</option>
+                            <option value="success">Success</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="filterType">File Type:</label>
+                        <select id="filterType">
+                            <option value="all">All</option>
+                            <option value="pdf">PDF</option>
+                            <option value="txt">TXT</option>
+                            <option value="csv">CSV</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="audit-download-actions">
+                    <span class="download-label">Download:</span>
+                    <a href="/api/audit/download/json" class="download-btn btn-json" id="downloadAuditJsonBtn">
+                        <i class="fa-solid fa-code"></i> JSON
+                    </a>
+                    <a href="/api/audit/download/txt" class="download-btn btn-txt" id="downloadAuditTxtBtn">
+                        <i class="fa-solid fa-file-lines"></i> TXT
+                    </a>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="audit-table" id="auditTable">
+                    <thead>
+                        <tr>
+                            <th data-sort="timestamp" class="sortable">Timestamp <i class="fa-solid fa-sort-down"></i></th>
+                            <th data-sort="file_name" class="sortable">File Name</th>
+                            <th data-sort="risk_level" class="sortable">Risk</th>
+                            <th data-sort="risk_score" class="sortable">Risk Score</th>
+                            <th data-sort="status" class="sortable">Status</th>
+                            <th data-sort="total_findings" class="sortable">Total Findings</th>
+                            <th data-sort="processing_time" class="sortable">Processing Time</th>
+                            <th data-sort="compliance_frameworks" class="sortable">Compliance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditTableBody">
+                        <!-- Dynamic rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="auditEmptyState" class="audit-empty-state" hidden>
+                <i class="fa-solid fa-folder-open"></i>
+                <p>No audit log entries found.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Row Details Modal -->
+    <div id="detailsModal" class="modal" hidden>
+        <div class="modal-content card">
+            <span class="close-modal-btn" id="closeModalBtn">&times;</span>
+            <h2>Analysis Audit Details</h2>
+            <div class="modal-body-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Analysis Timestamp</span>
+                    <span class="detail-value" id="detailTimestamp">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">File Name</span>
+                    <span class="detail-value" id="detailFileName">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">File Type</span>
+                    <span class="detail-value" id="detailFileType">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">File Size</span>
+                    <span class="detail-value" id="detailFileSize">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Processing Time</span>
+                    <span class="detail-value" id="detailProcessingTime">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Risk Level</span>
+                    <span class="detail-value" id="detailRiskLevel">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Risk Score</span>
+                    <span class="detail-value" id="detailRiskScore">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">AI Summary Status</span>
+                    <span class="detail-value" id="detailSummaryStatus">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Analysis Status</span>
+                    <span class="detail-value" id="detailAnalysisStatus">-</span>
+                </div>
+                
+                <div class="detail-item full-width">
+                    <span class="detail-label">Sensitive Categories Detected</span>
+                    <div class="detail-categories-list" id="detailCategoriesList"></div>
+                </div>
+                <div class="detail-item full-width">
+                    <span class="detail-label">Compliance Frameworks Triggered</span>
+                    <div class="detail-compliance-list" id="detailComplianceList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>SecureScan AI</span>
+            </div>
+            <p class="footer-subtitle">Sensitive Data Detection & Compliance Assistant</p>
+            <p class="footer-tech">Built with Flask • Python • Google Gemini AI</p>
+            <p class="footer-desc">AI-Powered Security & Compliance Analysis</p>
+            <p class="copyright">&copy; 2026 SecureScan AI. All Rights Reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
