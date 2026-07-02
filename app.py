@@ -96,30 +96,30 @@ def analyze():
                 SESSION['doc_text'] = ""
                 SESSION['findings'] = {}
                 SESSION['risk'] = {
-                "level": "Low Risk",
-                "score": 0,
-                "reasons": ["No readable text found in the uploaded document."]
-            }
-            SESSION['summary_text'] = None
+                    "level": "Low Risk",
+                    "score": 0,
+                    "reasons": ["No readable text found in the uploaded document."]
+                }
+                SESSION['summary_text'] = None
 
-            now = datetime.datetime.now()
-            SESSION['metadata'] = {
-                "file_name": file.filename,
-                "file_size": file_size_str,
-                "file_type": file_type,
-                "analysis_date": now.strftime("%Y-%m-%d"),
-                "analysis_time": now.strftime("%H:%M:%S"),
-                "timestamp": now.strftime("%Y-%m-%d %H:%M:%S"),
-                "findings_count": 0,
-                "categories_count": 0
-            }
+                now = datetime.datetime.now()
+                SESSION['metadata'] = {
+                    "file_name": file.filename,
+                    "file_size": file_size_str,
+                    "file_type": file_type,
+                    "analysis_date": now.strftime("%Y-%m-%d"),
+                    "analysis_time": now.strftime("%H:%M:%S"),
+                    "timestamp": now.strftime("%Y-%m-%d %H:%M:%S"),
+                    "findings_count": 0,
+                    "categories_count": 0
+                }
 
-            return jsonify({
-                "findings": {},
-                "risk": SESSION["risk"],
-                "findings_count": 0,
-                "metadata": SESSION["metadata"]
-         })
+                return jsonify({
+                    "findings": {},
+                    "risk": SESSION["risk"],
+                    "findings_count": 0,
+                    "metadata": SESSION["metadata"]
+                })
             
         # Detect sensitive data and risk
         findings = detector.detect_sensitive_data(doc_text)
